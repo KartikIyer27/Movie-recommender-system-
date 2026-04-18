@@ -1,0 +1,24 @@
+{
+    "kartik": {
+        "recent_watch_history": [
+            "Usual Suspects, The (1995)",
+            "Fight Club (1999)",
+            "Shawshank Redemption, The (1994)",
+            "Pulp Fiction (1994)",
+            "Matrix, The (1999)"
+        ],
+        "liked_movies": [
+            "Grumpier Old Men (1995)",
+            "Toy Story (1995)",
+            "American President, The (1995)",
+            "Dracula: Dead and Loving It (1995)",
+            "Four Rooms (1995)"
+        ],
+        "preferred_genres": [
+            "Comedy",
+            "Crime",
+            "Film-Noir",
+            "Fantasy"
+        ]
+    }
+}
