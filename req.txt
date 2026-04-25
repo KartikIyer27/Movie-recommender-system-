@@ -7,3 +7,4 @@ scikit-surprise
 rapidfuzz
 requests
 streamlit
+pyspark

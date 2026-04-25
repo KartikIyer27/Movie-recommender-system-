@@ -19,6 +19,69 @@
             "Crime",
             "Film-Noir",
             "Fantasy"
-        ]
+        ],
+        "als_user_id": 130012
+    },
+    "R": {
+        "recent_watch_history": [],
+        "liked_movies": [
+            "Toy Story (1995)",
+            "Batman Forever (1995)",
+            "Mask, The (1994)"
+        ],
+        "preferred_genres": [
+            "Sci-Fi"
+        ],
+        "als_user_id": 105746
+    },
+    "W": {
+        "recent_watch_history": [
+            "Matrix, The (1999)"
+        ],
+        "liked_movies": [
+            "Grumpier Old Men (1995)",
+            "Toy Story (1995)",
+            "Dracula: Dead and Loving It (1995)"
+        ],
+        "preferred_genres": [
+            "Sci-Fi"
+        ],
+        "als_user_id": 36683
+    },
+    "T": {
+        "recent_watch_history": [],
+        "liked_movies": [
+            "Grumpier Old Men (1995)",
+            "Toy Story (1995)",
+            "Dracula: Dead and Loving It (1995)",
+            "Ace Ventura: When Nature Calls (1995)",
+            "It Takes Two (1995)"
+        ],
+        "preferred_genres": [
+            "Mystery",
+            "Sci-Fi"
+        ],
+        "als_user_id": 63477
+    },
+    "Y": {
+        "recent_watch_history": [],
+        "liked_movies": [
+            "Toy Story (1995)",
+            "Dracula: Dead and Loving It (1995)",
+            "French Kiss (1995)",
+            "Major Payne (1995)",
+            "Live Nude Girls (1995)"
+        ],
+        "preferred_genres": [
+            "Fantasy",
+            "Mystery",
+            "Thriller"
+        ],
+        "disliked_genres": [
+            "Children",
+            "Musical",
+            "Drama"
+        ],
+        "als_user_id": 63477
     }
 }

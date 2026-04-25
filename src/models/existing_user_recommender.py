@@ -35,16 +35,46 @@ class ExistingUserRecommender:
         if not recent_indices:
             return 0
 
-        return max([
+        sims = [
             linear_kernel(
                 self.tfidf_matrix[idx:idx+1],
                 self.tfidf_matrix[r:r+1]
             )[0][0]
             for r in recent_indices
-        ])
+        ]
 
-    def recommend(self, recent_movies, mood, top_n=10):
+        # Use average similarity across recent history to avoid one-title domination.
+        return sum(sims) / len(sims)
+
+    def _mood_score(self, genres, mood):
+        mood_map = {
+            "happy": ["Comedy", "Animation", "Family", "Sci-Fi"],
+            "serious": ["Drama", "Crime", "War"],
+            "excited": ["Action", "Thriller", "Adventure"]
+        }
+
+        if mood not in mood_map:
+            return 0
+
+        genre_set = {g.strip() for g in (genres or "").split("|") if g.strip()}
+        return 1 if any(g in genre_set for g in mood_map[mood]) else 0
+
+    def recommend(self, recent_movies, mood, top_n=10, negative_genres=None):
         df = self.movie_features.copy()
+        negative_set = {g.strip().lower() for g in (negative_genres or []) if g}
+
+        if negative_set:
+            def has_negative(genres):
+                row_set = {x.strip().lower() for x in str(genres or "").split("|") if x.strip()}
+                return bool(row_set.intersection(negative_set))
+
+            df = df[~df["genres"].apply(has_negative)].copy()
+
+        pop_max = df["popularity_score"].max() if len(df) else 0
+        if pop_max > 0:
+            df["popularity_norm"] = df["popularity_score"] / pop_max
+        else:
+            df["popularity_norm"] = 0
 
         recent_indices = [
             self.title_to_index[m]
@@ -57,13 +87,16 @@ class ExistingUserRecommender:
         scores = []
 
         for idx, row in df.iterrows():
-            genre_match = 1 if any(g in row["genres"] for g in preferred_genres) else 0
+            row_genres = {g.strip() for g in str(row["genres"] or "").split("|") if g.strip()}
+            pref_genres = {g.strip() for g in preferred_genres if g}
+            genre_match = 1 if row_genres.intersection(pref_genres) else 0
             user_preference_weight = len(preferred_genres) / 5 if preferred_genres else 1
 
             score = (
-                0.35 * self._similarity(idx, recent_indices) +
-                0.25 * genre_match +
-                0.25 * row["popularity_score"]
+                0.45 * self._similarity(idx, recent_indices) +
+                0.35 * genre_match +
+                0.15 * row["popularity_norm"] +
+                0.05 * self._mood_score(row["genres"], mood)
             )
 
             scores.append(score)

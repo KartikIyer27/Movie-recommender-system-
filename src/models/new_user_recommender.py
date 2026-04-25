@@ -30,13 +30,21 @@ class NewUserRecommender:
     def _liked_movie_score(self, idx, liked_indices):
         if not liked_indices:
             return 0
-        return max([
+        sims = [
             linear_kernel(
                 self.tfidf_matrix[idx:idx+1],
                 self.tfidf_matrix[i:i+1]
             )[0][0]
             for i in liked_indices
-        ])
+        ]
+
+        sims = sorted(sims, reverse=True)
+        top_k = sims[: min(3, len(sims))]
+
+        # Blend top-k focus with full-list average so multiple liked movies influence ranking.
+        top_component = sum(top_k) / len(top_k) if top_k else 0
+        avg_component = sum(sims) / len(sims) if sims else 0
+        return (0.7 * top_component) + (0.3 * avg_component)
 
     def _mood_score(self, genres, mood):
         mood_map = {
@@ -51,8 +59,22 @@ class NewUserRecommender:
         genre_list = genres.split("|") if genres else []
         return 1 if any(g in genre_list for g in mood_map[mood]) else 0
 
-    def recommend(self, preferred_genres, liked_movies, mood, top_n=10):
+    def recommend(self, preferred_genres, liked_movies, mood, top_n=10, negative_genres=None):
         df = self.movie_features.copy()
+        negative_set = {g.strip().lower() for g in (negative_genres or []) if g}
+
+        if negative_set:
+            def has_negative(genres):
+                row_set = {x.strip().lower() for x in str(genres or "").split("|") if x.strip()}
+                return bool(row_set.intersection(negative_set))
+
+            df = df[~df["genres"].apply(has_negative)].copy()
+
+        pop_max = df["popularity_score"].max() if len(df) else 0
+        if pop_max > 0:
+            df["popularity_norm"] = df["popularity_score"] / pop_max
+        else:
+            df["popularity_norm"] = 0
 
         liked_indices = [
             self.title_to_index[m]
@@ -65,10 +87,10 @@ class NewUserRecommender:
 
         for idx, row in df.iterrows():
             score = (
-                0.4 * self._genre_score(row["genres"], preferred_genres) +
+                0.5 * self._genre_score(row["genres"], preferred_genres) +
                 0.3 * self._liked_movie_score(idx, liked_indices) +
-                0.2 * row["popularity_score"] +
-                0.1 * self._mood_score(row["genres"], mood)
+                0.15 * row["popularity_norm"] +
+                0.05 * self._mood_score(row["genres"], mood)
             )
             scores.append(score)
 
