@@ -1,55 +1,3 @@
-# import json
-# import os
-
-# USER_FILE = "data/processed/user_profiles.json"
-
-
-# def load_users():
-#     if not os.path.exists(USER_FILE):
-#         return {}
-
-#     with open(USER_FILE, "r") as f:
-#         return json.load(f)
-
-
-# def save_users(users):
-#     with open(USER_FILE, "w") as f:
-#         json.dump(users, f, indent=4)
-
-
-# # -------------------------
-# # ADD CLICKED MOVIE
-# # -------------------------
-# def add_clicked_movie(user_id: str, movie_title: str):
-#     users = load_users()
-
-#     if user_id not in users:
-#         users[user_id] = {
-#             "recent_watch_history": []
-#         }
-
-#     history = users[user_id]["recent_watch_history"]
-
-#     # Add new click
-#     history.append(movie_title)
-
-#     # Keep only last 5 movies
-#     users[user_id]["recent_watch_history"] = history[-5:]
-
-#     save_users(users)
-
-
-# # -------------------------
-# # GET USER HISTORY
-# # -------------------------
-# def get_recent_history(user_id: str):
-#     users = load_users()
-
-#     if user_id not in users:
-#         return []
-
-#     return users[user_id].get("recent_watch_history", [])
-
 import json
 import os
 from datetime import datetime
@@ -298,3 +246,46 @@ def add_liked_movie(user_id: str, movie_title: str):
 
     users[user_id]["liked_movies"] = liked_movies
     save_users(users)
+
+
+def get_movie_like_totals() -> dict[str, int]:
+    """Return a case-insensitive aggregate of liked counts per movie title."""
+    users = load_users()
+    canonical_titles = {}
+    like_totals = {}
+
+    for profile in users.values():
+        if not isinstance(profile, dict):
+            continue
+
+        for title in profile.get("liked_movies", []):
+            title = str(title).strip()
+            if not title:
+                continue
+
+            key = title.casefold()
+            if key not in canonical_titles:
+                canonical_titles[key] = title
+            like_totals[key] = like_totals.get(key, 0) + 1
+
+    return {canonical_titles[k]: v for k, v in like_totals.items()}
+
+
+def get_movie_total_likes(movie_title: str) -> int:
+    """Return total number of users who liked the given movie title."""
+    normalized_title = str(movie_title or "").strip().casefold()
+    if not normalized_title:
+        return 0
+
+    users = load_users()
+    total = 0
+
+    for profile in users.values():
+        if not isinstance(profile, dict):
+            continue
+
+        liked_movies = {str(title).strip().casefold() for title in profile.get("liked_movies", []) if str(title).strip()}
+        if normalized_title in liked_movies:
+            total += 1
+
+    return total
