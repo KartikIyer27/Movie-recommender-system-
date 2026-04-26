@@ -632,6 +632,7 @@ else:
     st.subheader("👤 Existing User")
 
     existing_user_id = st.text_input("Enter your user ID")
+    all_movie_titles = movie_features["title"].dropna().astype(str).tolist()
 
     if existing_user_id:
         existing_user_id = existing_user_id.strip()
@@ -642,6 +643,35 @@ else:
 
         recent_movies = show_history_section(existing_user_id)
         liked_movies, preferred_genres, disliked_genres = get_user_preferences(existing_user_id)
+
+        with st.expander("⚙ Edit Profile Preferences", expanded=False):
+            edited_preferred_genres = st.multiselect(
+                "Edit preferred genres",
+                options=all_genres,
+                default=preferred_genres,
+                key=f"edit_pref_genres_{existing_user_id}"
+            )
+            edited_liked_movies = st.multiselect(
+                "Edit liked movies",
+                options=all_movie_titles,
+                default=liked_movies,
+                key=f"edit_liked_movies_{existing_user_id}"
+            )
+
+            if st.button("Save Profile Changes", key=f"save_profile_{existing_user_id}"):
+                cleaned_genres = list(dict.fromkeys([g for g in edited_preferred_genres if isinstance(g, str) and g.strip()]))
+                cleaned_liked = list(dict.fromkeys([m for m in edited_liked_movies if isinstance(m, str) and m.strip()]))
+
+                update_user_preferences(
+                    existing_user_id,
+                    liked_movies=cleaned_liked,
+                    preferred_genres=cleaned_genres,
+                )
+
+                st.session_state["preferred_genres"] = cleaned_genres
+                st.session_state["liked_movies"] = cleaned_liked
+                st.success("✅ Profile updated successfully. Your next recommendations will use these changes.")
+                st.rerun()
 
         st.subheader("❤️ Liked Movies")
         liked_search_text = st.text_input("Search in your liked movies", key=f"liked_search_{existing_user_id}")

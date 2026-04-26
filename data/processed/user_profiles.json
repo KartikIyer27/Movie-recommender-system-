@@ -2,18 +2,6 @@
     "kartik": {
         "recent_watch_history": [
             {
-                "title": "Pulp Fiction (1994)",
-                "watched_at": null,
-                "time_of_day": null,
-                "clicks": 1
-            },
-            {
-                "title": "Usual Suspects, The (1995)",
-                "watched_at": "2026-04-25T19:18:06",
-                "time_of_day": "evening",
-                "clicks": 2
-            },
-            {
                 "title": "Shawshank Redemption, The (1994)",
                 "watched_at": "2026-04-25T19:18:16",
                 "time_of_day": "evening",
@@ -30,12 +18,6 @@
                 "watched_at": "2026-04-25T19:18:33",
                 "time_of_day": "evening",
                 "clicks": 3
-            },
-            {
-                "title": "Chinatown (1974)",
-                "watched_at": "2026-04-25T19:31:57",
-                "time_of_day": "evening",
-                "clicks": 1
             }
         ],
         "liked_movies": [
@@ -51,8 +33,7 @@
         "preferred_genres": [
             "Comedy",
             "Crime",
-            "Film-Noir",
-            "Fantasy"
+            "Film-Noir"
         ],
         "als_user_id": 130012,
         "disliked_genres": [],
@@ -171,6 +152,39 @@
             "War"
         ],
         "als_user_id": 105746,
+        "movie_clicks": {},
+        "watch_later": []
+    },
+    "user1": {
+        "recent_watch_history": [],
+        "liked_movies": [
+            "GoldenEye (1995)"
+        ],
+        "preferred_genres": [],
+        "disliked_genres": [
+            "Thriller"
+        ],
+        "als_user_id": 63477,
+        "movie_clicks": {},
+        "watch_later": []
+    },
+    "user2": {
+        "recent_watch_history": [],
+        "liked_movies": [
+            "Cutthroat Island (1995)",
+            "Money Train (1995)",
+            "Assassins (1995)",
+            "Dead Presidents (1995)"
+        ],
+        "preferred_genres": [
+            "Adventure",
+            "Animation",
+            "Children"
+        ],
+        "disliked_genres": [
+            "War"
+        ],
+        "als_user_id": 63477,
         "movie_clicks": {},
         "watch_later": []
     }
