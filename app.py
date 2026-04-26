@@ -13,6 +13,7 @@ from src.explainability.explain import generate_explanation
 from src.realtime.update_model import (
     add_clicked_movie,
     add_liked_movie,
+    get_movie_like_totals,
     get_recent_history,
     get_recent_history_entries,
     get_top_clicked_movie,
@@ -752,6 +753,7 @@ if "recs" in st.session_state:
         st.caption(f"Source: {st.session_state['rec_source']}")
 
     recs = st.session_state["recs"]
+    movie_like_totals = get_movie_like_totals()
     current_user_id = st.session_state.get("user_id", "")
     explanation_map = st.session_state.get("explanations", {})
     current_pref_genres = st.session_state.get("preferred_genres", [])
@@ -774,6 +776,8 @@ if "recs" in st.session_state:
 
         st.markdown(f"### {i}. {row.title}")
         st.write(f"⭐ Score: {round(row.final_score, 3)}")
+        total_likes = movie_like_totals.get(str(row.title), 0)
+        st.write(f"👍 Total Likes (all users): {total_likes}")
         tags = str(getattr(row, "genres", "") or "")
         if tags and tags.lower() != "nan":
             st.caption(f"Tags: {tags.replace('|', ', ')}")

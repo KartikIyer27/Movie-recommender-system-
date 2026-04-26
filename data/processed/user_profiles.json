@@ -44,7 +44,9 @@
             "American President, The (1995)",
             "Dracula: Dead and Loving It (1995)",
             "Four Rooms (1995)",
-            "Schindler's List (1993)"
+            "Schindler's List (1993)",
+            "Chinatown (1974)",
+            "Inception (2010)"
         ],
         "preferred_genres": [
             "Comedy",
@@ -67,19 +69,32 @@
         ]
     },
     "R": {
-        "recent_watch_history": [],
+        "recent_watch_history": [
+            {
+                "title": "Toy Story (1995)",
+                "watched_at": "2026-04-26T16:40:34",
+                "time_of_day": "afternoon",
+                "clicks": 1
+            }
+        ],
         "liked_movies": [
             "Toy Story (1995)",
             "Batman Forever (1995)",
-            "Mask, The (1994)"
+            "Mask, The (1994)",
+            "Toy Story 2 (1999)",
+            "Blade Runner (1982)"
         ],
         "preferred_genres": [
             "Sci-Fi"
         ],
         "als_user_id": 105746,
         "disliked_genres": [],
-        "movie_clicks": {},
-        "watch_later": []
+        "movie_clicks": {
+            "Toy Story (1995)": 1
+        },
+        "watch_later": [
+            "Blade Runner (1982)"
+        ]
     },
     "W": {
         "recent_watch_history": [
