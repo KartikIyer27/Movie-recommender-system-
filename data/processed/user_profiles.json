@@ -1,18 +1,50 @@
 {
     "kartik": {
         "recent_watch_history": [
-            "Usual Suspects, The (1995)",
-            "Fight Club (1999)",
-            "Shawshank Redemption, The (1994)",
-            "Pulp Fiction (1994)",
-            "Matrix, The (1999)"
+            {
+                "title": "Pulp Fiction (1994)",
+                "watched_at": null,
+                "time_of_day": null,
+                "clicks": 1
+            },
+            {
+                "title": "Usual Suspects, The (1995)",
+                "watched_at": "2026-04-25T19:18:06",
+                "time_of_day": "evening",
+                "clicks": 2
+            },
+            {
+                "title": "Shawshank Redemption, The (1994)",
+                "watched_at": "2026-04-25T19:18:16",
+                "time_of_day": "evening",
+                "clicks": 1
+            },
+            {
+                "title": "Fight Club (1999)",
+                "watched_at": "2026-04-25T19:18:17",
+                "time_of_day": "evening",
+                "clicks": 1
+            },
+            {
+                "title": "Matrix, The (1999)",
+                "watched_at": "2026-04-25T19:18:33",
+                "time_of_day": "evening",
+                "clicks": 3
+            },
+            {
+                "title": "Chinatown (1974)",
+                "watched_at": "2026-04-25T19:31:57",
+                "time_of_day": "evening",
+                "clicks": 1
+            }
         ],
         "liked_movies": [
             "Grumpier Old Men (1995)",
             "Toy Story (1995)",
             "American President, The (1995)",
             "Dracula: Dead and Loving It (1995)",
-            "Four Rooms (1995)"
+            "Four Rooms (1995)",
+            "Schindler's List (1993)"
         ],
         "preferred_genres": [
             "Comedy",
@@ -20,7 +52,19 @@
             "Film-Noir",
             "Fantasy"
         ],
-        "als_user_id": 130012
+        "als_user_id": 130012,
+        "disliked_genres": [],
+        "movie_clicks": {
+            "Usual Suspects, The (1995)": 2,
+            "Matrix, The (1999)": 3,
+            "Shawshank Redemption, The (1994)": 1,
+            "Fight Club (1999)": 1,
+            "Chinatown (1974)": 1
+        },
+        "watch_later": [
+            "Inception (2010)",
+            "Blood Father (2016)"
+        ]
     },
     "R": {
         "recent_watch_history": [],
@@ -32,11 +76,19 @@
         "preferred_genres": [
             "Sci-Fi"
         ],
-        "als_user_id": 105746
+        "als_user_id": 105746,
+        "disliked_genres": [],
+        "movie_clicks": {},
+        "watch_later": []
     },
     "W": {
         "recent_watch_history": [
-            "Matrix, The (1999)"
+            {
+                "title": "Matrix, The (1999)",
+                "watched_at": null,
+                "time_of_day": null,
+                "clicks": 1
+            }
         ],
         "liked_movies": [
             "Grumpier Old Men (1995)",
@@ -46,7 +98,10 @@
         "preferred_genres": [
             "Sci-Fi"
         ],
-        "als_user_id": 36683
+        "als_user_id": 36683,
+        "disliked_genres": [],
+        "movie_clicks": {},
+        "watch_later": []
     },
     "T": {
         "recent_watch_history": [],
@@ -61,7 +116,10 @@
             "Mystery",
             "Sci-Fi"
         ],
-        "als_user_id": 63477
+        "als_user_id": 63477,
+        "disliked_genres": [],
+        "movie_clicks": {},
+        "watch_later": []
     },
     "Y": {
         "recent_watch_history": [],
@@ -82,6 +140,23 @@
             "Musical",
             "Drama"
         ],
-        "als_user_id": 63477
+        "als_user_id": 63477,
+        "movie_clicks": {},
+        "watch_later": []
+    },
+    "dummy": {
+        "recent_watch_history": [],
+        "liked_movies": [
+            "Toy Story (1995)"
+        ],
+        "preferred_genres": [
+            "Adventure"
+        ],
+        "disliked_genres": [
+            "War"
+        ],
+        "als_user_id": 105746,
+        "movie_clicks": {},
+        "watch_later": []
     }
 }

@@ -284,3 +284,17 @@ def remove_watch_later_movie(user_id: str, movie_title: str):
 
     users[user_id]["watch_later"] = [m for m in users[user_id].get("watch_later", []) if m != movie_title]
     save_users(users)
+
+
+def add_liked_movie(user_id: str, movie_title: str):
+    users = load_users()
+    if user_id not in users:
+        users[user_id] = _ensure_user_schema({})
+
+    users[user_id] = _ensure_user_schema(users[user_id])
+    liked_movies = users[user_id].get("liked_movies", [])
+    if movie_title not in liked_movies:
+        liked_movies.append(movie_title)
+
+    users[user_id]["liked_movies"] = liked_movies
+    save_users(users)

@@ -140,20 +140,36 @@ def evaluate_model(model, test, k: int):
     scored = joined.select(
         col("userId"),
         size(array_intersect(col("actual"), col("recs"))).alias("hits"),
-        size(col("actual")).alias("actual_size")
+        size(col("actual")).alias("actual_size"),
+        expr(
+            "aggregate("
+            "zip_with(recs, sequence(1, size(recs)), (m, i) -> IF(array_contains(actual, m), 1D / log2(i + 1), 0D)),"
+            "0D,"
+            "(acc, x) -> acc + x"
+            ")"
+        ).alias("dcg"),
+        expr(
+            "aggregate("
+            "sequence(1, least(size(actual), {k})),"
+            "0D,"
+            "(acc, i) -> acc + 1D / log2(i + 1)"
+            ")".format(k=k)
+        ).alias("idcg")
     )
 
     scored = scored.select(
         (col("hits") / k).alias("precision"),
-        expr("case when actual_size = 0 then 0 else hits / actual_size end").alias("recall")
+        expr("case when actual_size = 0 then 0 else hits / actual_size end").alias("recall"),
+        expr("case when idcg = 0 then 0 else dcg / idcg end").alias("ndcg")
     )
 
     metrics = scored.agg(
         avg("precision").alias("precision_at_k"),
-        avg("recall").alias("recall_at_k")
+        avg("recall").alias("recall_at_k"),
+        avg("ndcg").alias("ndcg_at_k")
     ).collect()[0]
 
-    return rmse, metrics["precision_at_k"], metrics["recall_at_k"]
+    return rmse, metrics["precision_at_k"], metrics["recall_at_k"], metrics["ndcg_at_k"]
 
 
 def export_recommendations(model, movies, output_dir: Path, top_n: int):
@@ -237,11 +253,12 @@ def main():
 
     model = train_als(train, rank=args.rank, max_iter=args.max_iter, reg_param=args.reg_param)
 
-    rmse, precision, recall = evaluate_model(model, test, k=args.top_n)
+    rmse, precision, recall, ndcg = evaluate_model(model, test, k=args.top_n)
 
     print(f"RMSE: {rmse:.4f}")
     print(f"Precision@{args.top_n}: {precision:.4f}")
     print(f"Recall@{args.top_n}: {recall:.4f}")
+    print(f"NDCG@{args.top_n}: {ndcg:.4f}")
 
     if args.output_local_file:
         export_recommendations_local(model, movies, Path(args.output_local_file), top_n=args.top_n)

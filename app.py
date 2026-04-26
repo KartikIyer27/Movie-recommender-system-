@@ -12,12 +12,18 @@ from src.utils.time_utils import get_time_of_day
 from src.explainability.explain import generate_explanation
 from src.realtime.update_model import (
     add_clicked_movie,
+    add_liked_movie,
     get_recent_history,
+    get_recent_history_entries,
+    get_top_clicked_movie,
     user_exists,
     create_user,
     get_als_user_id,
     get_user_preferences,
     update_user_preferences,
+    add_watch_later_movie,
+    get_watch_later_movies,
+    remove_watch_later_movie,
 )
 
 PROJECT_ROOT = Path(__file__).resolve().parent
@@ -105,24 +111,129 @@ def animated_progress(message: str):
 
 
 def show_history_section(user_id: str):
-    recent_movies = get_recent_history(user_id)
+    recent_entries = get_recent_history_entries(user_id)
 
     st.subheader("📺 Previously Watched")
 
-    if recent_movies:
-        for movie in reversed(recent_movies):
+    if recent_entries:
+        for idx, item in enumerate(reversed(recent_entries), 1):
+            movie = item.get("title") if isinstance(item, dict) else str(item)
+            watched_at = item.get("watched_at") if isinstance(item, dict) else None
+            click_count = item.get("clicks") if isinstance(item, dict) else None
+
+            col1, col2, col3 = st.columns([4, 1, 1])
+            with col1:
+                watched_label = watched_at if watched_at else "unknown time"
+                clicks_label = int(click_count) if click_count is not None else 1
+                st.markdown(
+                    f"""
+                    <div style="padding:10px; margin:5px 0; border-radius:10px; background-color:#262730;">
+                        🎬 <b>{movie}</b><br>
+                        ⏱ Watched at: {watched_label}<br>
+                        🖱 Number of times watched: {clicks_label}
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+            with col2:
+                if st.button("🔁 Watch Again", key=f"watch_again_{user_id}_{idx}"):
+                    add_clicked_movie(user_id, movie)
+                    st.success(f"Added '{movie}' to your history again.")
+                    st.rerun()
+            with col3:
+                if st.button("❤️ Like", key=f"history_like_{user_id}_{idx}"):
+                    add_liked_movie(user_id, movie)
+                    st.success(f"Added '{movie}' to liked movies.")
+                    st.rerun()
+    else:
+        st.info("No watch history yet. Start watching to build your profile!")
+
+    recent_movies = [item.get("title") for item in recent_entries if isinstance(item, dict) and item.get("title")]
+    if not recent_movies:
+        recent_movies = get_recent_history(user_id)
+    return recent_movies
+
+
+def rerank_with_time_history(
+    recs: pd.DataFrame,
+    user_id: str,
+    current_time_slot: str,
+    movie_df: pd.DataFrame,
+):
+    if recs is None or recs.empty:
+        return recs
+
+    history_entries = get_recent_history_entries(user_id)
+    if not history_entries:
+        return recs
+
+    same_slot_titles = [
+        h.get("title")
+        for h in history_entries
+        if isinstance(h, dict) and h.get("time_of_day") == current_time_slot and h.get("title")
+    ]
+    if not same_slot_titles:
+        return recs
+
+    slot_movies = movie_df[movie_df["title"].isin(same_slot_titles)]
+    if slot_movies.empty:
+        return recs
+
+    preferred_slot_genres = set()
+    for genres in slot_movies["genres"].fillna(""):
+        for g in str(genres).split("|"):
+            g = g.strip().lower()
+            if g:
+                preferred_slot_genres.add(g)
+
+    if not preferred_slot_genres:
+        return recs
+
+    reranked = recs.copy()
+    bonus = []
+    for row in reranked.itertuples():
+        row_genres = {x.strip().lower() for x in str(getattr(row, "genres", "") or "").split("|") if x.strip()}
+        bonus.append(0.12 if row_genres.intersection(preferred_slot_genres) else 0.0)
+
+    reranked["final_score"] = pd.to_numeric(reranked["final_score"], errors="coerce").fillna(0.0) + pd.Series(bonus)
+    return reranked.sort_values("final_score", ascending=False).head(len(recs))
+
+
+def show_watch_later_section(user_id: str):
+    st.subheader("🕒 Watch Later")
+    watch_later_movies = get_watch_later_movies(user_id)
+
+    if not watch_later_movies:
+        st.info("No movies in your watch later playlist yet.")
+        return
+
+    for idx, title in enumerate(watch_later_movies, 1):
+        col1, col2, col3, col4 = st.columns([4, 1, 1, 1])
+        with col1:
             st.markdown(
                 f"""
-                <div style="padding:10px; margin:5px 0; border-radius:10px; background-color:#262730;">
-                    🎬 {movie}
+                <div style="padding:10px; margin:5px 0; border-radius:10px; background-color:#1f3a5f;">
+                    🎞 {title}
                 </div>
                 """,
                 unsafe_allow_html=True
             )
-    else:
-        st.info("No watch history yet. Start watching to build your profile!")
-
-    return recent_movies
+        with col2:
+            if st.button("▶ Watch Now", key=f"watch_later_watch_{user_id}_{idx}"):
+                add_clicked_movie(user_id, title)
+                remove_watch_later_movie(user_id, title)
+                st.success(f"Started watching '{title}'.")
+                st.rerun()
+        with col3:
+            if st.button("❌ Remove", key=f"watch_later_remove_{user_id}_{idx}"):
+                remove_watch_later_movie(user_id, title)
+                st.success(f"Removed '{title}' from watch later.")
+                st.rerun()
+        with col4:
+            if st.button("❤️ Like", key=f"watch_later_like_{user_id}_{idx}"):
+                add_liked_movie(user_id, title)
+                st.success(f"Added '{title}' to liked movies.")
+                st.rerun()
 
 
 def get_als_recommendations(als_df: pd.DataFrame, user_id: str, top_n: int):
@@ -531,6 +642,36 @@ else:
         recent_movies = show_history_section(existing_user_id)
         liked_movies, preferred_genres, disliked_genres = get_user_preferences(existing_user_id)
 
+        st.subheader("❤️ Liked Movies")
+        liked_search_text = st.text_input("Search in your liked movies", key=f"liked_search_{existing_user_id}")
+        liked_filtered = [
+            m for m in liked_movies
+            if liked_search_text.strip().lower() in m.lower()
+        ] if liked_search_text.strip() else liked_movies
+
+        with st.container(height=220):
+            if liked_filtered:
+                for idx, title in enumerate(liked_filtered, 1):
+                    col1, col2 = st.columns([5, 1])
+                    with col1:
+                        st.markdown(f"• {title}")
+                    with col2:
+                        if st.button("▶ Watch", key=f"liked_watch_{existing_user_id}_{idx}"):
+                            add_clicked_movie(existing_user_id, title)
+                            st.success(f"Added '{title}' to your history.")
+                            st.rerun()
+            else:
+                st.caption("No liked movies match your search.")
+
+        fav_title, fav_clicks = get_top_clicked_movie(existing_user_id)
+        st.subheader("⭐ Favourite Movie")
+        if fav_title:
+            st.info(f"{fav_title}  |  watched : {fav_clicks} times")
+        else:
+            st.caption("Favourite movie will appear once you start watching titles.")
+
+        show_watch_later_section(existing_user_id)
+
         if st.button("Get Recommendations", key="existing_user_recs"):
             if not recent_movies:
                 if not liked_movies and not preferred_genres:
@@ -579,6 +720,12 @@ else:
                 recent_movies=recent_movies,
                 liked_movies=liked_movies,
                 negative_genres=disliked_genres
+            )
+            combined = rerank_with_time_history(
+                recs=combined,
+                user_id=existing_user_id,
+                current_time_slot=time_of_day,
+                movie_df=movie_features,
             )
 
             st.session_state["recs"] = combined
@@ -636,4 +783,17 @@ if "recs" in st.session_state:
             add_clicked_movie(current_user_id, row.title)
             st.success(f"Added '{row.title}' to your history.")
             st.balloons()
+            st.rerun()
+
+        if current_user_id and st.button(f"🕒 Watch Later: {row.title}", key=f"watch_later_{row.movieId}_{i}"):
+            add_watch_later_movie(current_user_id, row.title)
+            st.success(f"Added '{row.title}' to watch later.")
+            st.rerun()
+
+        if current_user_id and st.button(f"❤️ Like {row.title}", key=f"rec_like_{row.movieId}_{i}"):
+            add_liked_movie(current_user_id, row.title)
+            session_likes = st.session_state.get("liked_movies", [])
+            if row.title not in session_likes:
+                st.session_state["liked_movies"] = [*session_likes, row.title]
+            st.success(f"Added '{row.title}' to liked movies.")
             st.rerun()
