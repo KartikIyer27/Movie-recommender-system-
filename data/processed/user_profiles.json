@@ -187,5 +187,53 @@
         "als_user_id": 63477,
         "movie_clicks": {},
         "watch_later": []
+    },
+    "23": {
+        "recent_watch_history": [],
+        "liked_movies": [
+            "Pinocchio (1940)",
+            "All Dogs Go to Heaven 2 (1996)",
+            "Pinocchio (2022)",
+            "Jumanji (1995)"
+        ],
+        "preferred_genres": [
+            "Comedy",
+            "Action"
+        ],
+        "disliked_genres": [
+            "Action",
+            "Animation",
+            "Comedy"
+        ],
+        "als_user_id": 143334,
+        "movie_clicks": {},
+        "watch_later": [
+            "Pinocchio (2022)"
+        ]
+    },
+    "7017473700": {
+        "recent_watch_history": [
+            {
+                "title": "Up (2009)",
+                "watched_at": "2026-04-29T00:47:14",
+                "time_of_day": "night",
+                "clicks": 1
+            }
+        ],
+        "liked_movies": [
+            "Fun and Fancy Free (1947)",
+            "Up (2009)"
+        ],
+        "preferred_genres": [],
+        "disliked_genres": [
+            "Action"
+        ],
+        "als_user_id": 124417,
+        "movie_clicks": {
+            "Up (2009)": 1
+        },
+        "watch_later": [
+            "Cabaret (1972)"
+        ]
     }
 }
